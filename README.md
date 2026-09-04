@@ -9,42 +9,32 @@ The system combines RS485 / Modbus RTU sensor communication, ESP-NOW wireless tr
 ## System Architecture
 
 ```text
-┌──────────────────────┐
-│   Wind Speed Sensor  │
-└──────────┬───────────┘
-           │
-           │ RS485 / Modbus RTU
-           │
-┌──────────▼───────────┐
-│ Wind Direction Sensor│
-└──────────┬───────────┘
-           │
-           ▼
-┌──────────────────────┐
-│      Sensor ESP32    │
-└──────────┬───────────┘
-           │ ESP-NOW
-           ▼
-┌──────────────────────┐
-│      Repeater 1      │
-└──────────┬───────────┘
-           │ ESP-NOW
-           ▼
-┌──────────────────────┐
-│      Repeater 2      │
-└──────────┬───────────┘
-           │ ESP-NOW
-           ▼
-┌──────────────────────┐
-│      Master ESP32    │
-└──────────┬───────────┘
-           │ USB Serial
-           ▼
-┌──────────────────────┐
-│        LabVIEW       │
-└──────────────────────┘
+Wind Speed Sensor ─────┐
+                       ├── RS485 / Modbus RTU ──> Sensor ESP32
+Wind Direction Sensor ─┘
 
-The sensor ESP32 reads both FST200 sensors through separate UART / RS485 interfaces. Valid measurements are combined into a single data frame and transmitted through two ESP-NOW repeaters to the master ESP32.
+Sensor ESP32
+     │
+     │ ESP-NOW
+     ▼
+Repeater 1
+     │
+     │ ESP-NOW
+     ▼
+Repeater 2
+     │
+     │ ESP-NOW
+     ▼
+Master ESP32
+     │
+     │ USB Serial
+     ▼
+LabVIEW
+```
+
+The sensor ESP32 reads both FST200 sensors through separate UART / RS485 interfaces.
+
+Valid measurements are combined into a single data frame and transmitted through two ESP-NOW repeaters to the master ESP32.
 
 The master ESP32 forwards the received data to the computer through USB serial communication, where LabVIEW parses, displays, and records the measurements.
 
@@ -74,7 +64,7 @@ The master ESP32 forwards the received data to the computer through USB serial c
 - Logic level shifters
 - External sensor power supply
 
-### Wiring
+### Hardware Wiring
 
 ![Hardware Wiring](docs/images/hardware-wiring.jpeg)
 
@@ -84,6 +74,7 @@ The master ESP32 forwards the received data to the computer through USB serial c
 
 The firmware is divided according to the role of each ESP32 node.
 
+```text
 firmware/
 ├── sensor/
 │   └── sensor.ino
@@ -93,6 +84,7 @@ firmware/
 │   └── repeater-2.ino
 └── master/
     └── master.ino
+```
 
 ### Sensor ESP32
 
@@ -105,7 +97,7 @@ The sensor node:
 - Generates a CRC-32 protected ESP-NOW frame
 - Sends the frame to the first repeater
 
-### Repeaters
+### Repeater Nodes
 
 The repeater nodes:
 
@@ -127,7 +119,9 @@ The master node:
 
 Serial output format:
 
+```text
 D;<Record ID>;<Sensor Time ms>;<Payload HEX>
+```
 
 ---
 
@@ -157,6 +151,7 @@ Main functions include:
 
 ## Repository Structure
 
+```text
 embedded-wind-measurement/
 ├── firmware/
 │   ├── sensor/
@@ -167,6 +162,7 @@ embedded-wind-measurement/
 │   │   └── repeater-2.ino
 │   └── master/
 │       └── master.ino
+│
 ├── labview/
 │   ├── Wind_Monitor.lvproj
 │   ├── Real Wind Monitor USB.vi
@@ -177,13 +173,16 @@ embedded-wind-measurement/
 │   ├── Calculate Modbus CRC16.vi
 │   ├── Write Real Wind Sample.vi
 │   └── Real Wind Sample.ctl
+│
 ├── docs/
 │   └── images/
 │       ├── hardware-wiring.jpeg
 │       ├── labview-front-panel.png
 │       └── labview-block-diagram.png
+│
 ├── README.md
 └── .gitignore
+```
 
 ---
 
