@@ -8,21 +8,41 @@ The system combines RS485 / Modbus RTU sensor communication, ESP-NOW wireless tr
 
 ## System Architecture
 
-Wind Speed Sensor ─┐
-                   ├─ RS485 / Modbus RTU
-Wind Direction ────┘
-          ↓
-      Sensor ESP32
-          ↓
-     Repeater 1
-          ↓
-     Repeater 2
-          ↓
-      Master ESP32
-          ↓
-       USB Serial
-          ↓
-        LabVIEW
+```text
+┌──────────────────────┐
+│   Wind Speed Sensor  │
+└──────────┬───────────┘
+           │
+           │ RS485 / Modbus RTU
+           │
+┌──────────▼───────────┐
+│ Wind Direction Sensor│
+└──────────┬───────────┘
+           │
+           ▼
+┌──────────────────────┐
+│      Sensor ESP32    │
+└──────────┬───────────┘
+           │ ESP-NOW
+           ▼
+┌──────────────────────┐
+│      Repeater 1      │
+└──────────┬───────────┘
+           │ ESP-NOW
+           ▼
+┌──────────────────────┐
+│      Repeater 2      │
+└──────────┬───────────┘
+           │ ESP-NOW
+           ▼
+┌──────────────────────┐
+│      Master ESP32    │
+└──────────┬───────────┘
+           │ USB Serial
+           ▼
+┌──────────────────────┐
+│        LabVIEW       │
+└──────────────────────┘
 
 The sensor ESP32 reads both FST200 sensors through separate UART / RS485 interfaces. Valid measurements are combined into a single data frame and transmitted through two ESP-NOW repeaters to the master ESP32.
 
